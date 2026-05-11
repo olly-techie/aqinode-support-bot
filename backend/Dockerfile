@@ -11,7 +11,7 @@ RUN a2enmod rewrite
 # Set the working directory
 WORKDIR /var/www/html
 
-# Copy project files
+# Copy backend files
 COPY . .
 
 # Set permissions for the knowledge file (if it exists or will be created)

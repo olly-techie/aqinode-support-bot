@@ -50,13 +50,13 @@ CONTEXT:
 " . ($context ?: "No relevant context found.");
 
 $data = [
-    'model' => 'llama3-70b-8192',
+    'model' => 'deepseek-r1-distill-llama-70b',
     'messages' => [
         ['role' => 'system', 'content' => $systemPrompt],
         ['role' => 'user', 'content' => $userMessage]
     ],
-    'temperature' => 0.7,
-    'max_tokens' => 1024
+    'temperature' => 0.6,
+    'max_tokens' => 2048
 ];
 
 $ch = curl_init('https://api.groq.com/openai/v1/chat/completions');

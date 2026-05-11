@@ -12,8 +12,8 @@ document.addEventListener('DOMContentLoaded', () => {
         chatMessages.scrollTop = chatMessages.scrollHeight;
     };
 
-    // CONFIGURATION: Change this to your backend URL (e.g., https://your-site.infinityfreeapp.com/backend/chat.php)
-    const API_ENDPOINT = '../backend/chat.php';
+    // CONFIGURATION: Live Render Backend URL
+    const API_ENDPOINT = 'https://aqinode-support-bot.onrender.com/chat.php';
 
     const sendMessage = async () => {
         const message = userInput.value.trim();

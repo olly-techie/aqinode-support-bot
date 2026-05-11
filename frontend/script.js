@@ -12,6 +12,9 @@ document.addEventListener('DOMContentLoaded', () => {
         chatMessages.scrollTop = chatMessages.scrollHeight;
     };
 
+    // CONFIGURATION: Change this to your backend URL (e.g., https://your-site.infinityfreeapp.com/backend/chat.php)
+    const API_ENDPOINT = '../backend/chat.php';
+
     const sendMessage = async () => {
         const message = userInput.value.trim();
         if (!message) return;
@@ -27,8 +30,9 @@ document.addEventListener('DOMContentLoaded', () => {
         chatMessages.scrollTop = chatMessages.scrollHeight;
 
         try {
-            const response = await fetch('http://localhost:8080/chat.php', {
+            const response = await fetch(API_ENDPOINT, {
                 method: 'POST',
+
                 headers: {
                     'Content-Type': 'application/json'
                 },

@@ -1,0 +1,10 @@
+{
+    "name": "aqinode/support-bot",
+    "description": "AI Support Bot for AqiNode",
+    "type": "project",
+    "require": {
+        "php": ">=7.4",
+        "ext-dom": "*",
+        "ext-libxml": "*"
+    }
+}

@@ -2,13 +2,20 @@
 
 // knowledge.php - Retrieval logic
 
-function get_relevant_context($query, $knowledgeFile = 'knowledge.json') {
+function get_relevant_context($query, $knowledgeFile = null) {
+    if ($knowledgeFile === null) {
+        $knowledgeFile = __DIR__ . '/knowledge.json';
+    }
+
     if (!file_exists($knowledgeFile)) {
         return "";
     }
 
-    $knowledge = json_decode(file_get_contents($knowledgeFile), true);
-    if (!$knowledge) return "";
+    $content = @file_get_contents($knowledgeFile);
+    if (!$content) return "";
+
+    $knowledge = json_decode($content, true);
+    if (!$knowledge || !is_array($knowledge)) return "";
 
     // Simple keyword-based retrieval (since we can't easily use embeddings in pure PHP without external libs)
     // We'll search for query words in the content

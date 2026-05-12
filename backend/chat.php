@@ -7,19 +7,28 @@ header('Content-Type: application/json');
 $allowedOrigins = [
     'https://aqinode-support-bot.onrender.com',
     'https://aqinode.click',
-    'http://localhost:8000', // For local testing
-    'http://127.0.0.1:8000'
+    'http://localhost:8000',
+    'http://127.0.0.1:8000',
+    'http://localhost:5500',
+    'http://127.0.0.1:5500',
+    'http://localhost:3000',
+    'http://localhost:5173'
 ];
 $origin = $_SERVER['HTTP_ORIGIN'] ?? '';
 if (in_array($origin, $allowedOrigins)) {
     header("Access-Control-Allow-Origin: $origin");
+    header("Vary: Origin");
+} elseif (empty($origin)) {
+    // Allow requests without Origin header (e.g. same-origin or direct)
+    header("Access-Control-Allow-Origin: *");
 }
 
 header('Access-Control-Allow-Methods: POST, OPTIONS');
 header('Access-Control-Allow-Headers: Content-Type');
 header('X-Content-Type-Options: nosniff');
 header('X-Frame-Options: DENY');
-header('Content-Security-Policy: default-src \'none\';'); // Minimal backend CSP
+// Relaxed CSP for API
+header("Content-Security-Policy: default-src 'self'; frame-ancestors 'none';");
 
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     exit;
@@ -27,14 +36,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 
 // 2. Basic Rate Limiting (File-based)
 $ip = $_SERVER['REMOTE_ADDR'] ?? 'unknown';
-$rateLimitFile = __DIR__ . '/ratelimit_' . md5($ip) . '.txt';
+$rateLimitFile = sys_get_temp_dir() . '/ratelimit_' . md5($ip) . '.txt';
 $now = time();
-$limit = 10; // 10 requests
-$window = 60; // per 60 seconds
+$limit = 20; // Increased limit for testing
+$window = 60;
 
 if (file_exists($rateLimitFile)) {
-    $data = json_decode(file_get_contents($rateLimitFile), true);
-    if ($now - $data['start'] < $window) {
+    $raw = @file_get_contents($rateLimitFile);
+    $data = $raw ? json_decode($raw, true) : null;
+    if ($data && $now - $data['start'] < $window) {
         if ($data['count'] >= $limit) {
             http_response_code(429);
             echo json_encode(['error' => 'Too many requests. Please wait a minute.']);
@@ -47,7 +57,7 @@ if (file_exists($rateLimitFile)) {
 } else {
     $data = ['start' => $now, 'count' => 1];
 }
-file_put_contents($rateLimitFile, json_encode($data));
+@file_put_contents($rateLimitFile, json_encode($data));
 // --- END SECURITY HARDENING ---
 
 require_once 'knowledge.php';
@@ -55,13 +65,19 @@ require_once 'knowledge.php';
 // Simple .env loader
 function loadEnv($path) {
     if (!file_exists($path)) return;
-    $lines = file($path, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+    $lines = @file($path, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+    if (!$lines) return;
     foreach ($lines as $line) {
         $line = trim($line);
         if (empty($line) || strpos($line, '#') === 0) continue;
         if (strpos($line, '=') !== false) {
             list($name, $value) = explode('=', $line, 2);
-            $_ENV[trim($name)] = trim($value);
+            $name = trim($name);
+            $value = trim($value);
+            // Remove quotes if present
+            $value = trim($value, '"\'');
+            $_ENV[$name] = $value;
+            putenv("$name=$value");
         }
     }
 }
@@ -71,11 +87,28 @@ loadEnv(__DIR__ . '/.env');
 $apiKey = $_ENV['GROQ_API_KEY'] ?? getenv('GROQ_API_KEY');
 
 if (!$apiKey) {
+    http_response_code(500);
     echo json_encode(['error' => 'API Key not configured']);
+    error_log("AqiNode Error: API Key not found");
     exit;
 }
 
-$input = json_decode(file_get_contents('php://input'), true);
+if (!function_exists('curl_init')) {
+    http_response_code(500);
+    echo json_encode(['error' => 'PHP Curl extension missing']);
+    error_log("AqiNode Error: Curl extension missing");
+    exit;
+}
+
+$rawInput = file_get_contents('php://input');
+$input = json_decode($rawInput, true);
+
+if ($input === null && !empty($rawInput)) {
+    http_response_code(400);
+    echo json_encode(['error' => 'Invalid JSON input']);
+    exit;
+}
+
 $userMessage = $input['message'] ?? '';
 
 if (empty($userMessage)) {
@@ -83,7 +116,7 @@ if (empty($userMessage)) {
     exit;
 }
 
-$context = get_relevant_context($userMessage);
+$context = get_relevant_context($userMessage, __DIR__ . '/knowledge.json');
 
 /**
  * 2026 Standard System Prompt for AqiNode Support Agent

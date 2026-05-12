@@ -43,7 +43,11 @@ document.addEventListener('DOMContentLoaded', () => {
             chatMessages.removeChild(loadingDiv);
 
             if (data.error) {
-                addMessage('Error: ' + data.error, 'bot');
+                let errorMsg = 'Error: ' + data.error;
+                if (data.details && data.details.error && data.details.error.message) {
+                    errorMsg += ' - ' + data.details.error.message;
+                }
+                addMessage(errorMsg, 'bot');
             } else {
                 addMessage(data.response, 'bot');
             }

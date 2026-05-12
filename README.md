@@ -5,7 +5,7 @@ A complete AI Support Bot system for AqiNode, featuring a custom website crawler
 ## 🚀 Features
 - **Custom PHP Crawler:** Crawls `https://aqinode.click`, follows internal links, and extracts text.
 - **RAG System:** Keyword-based retrieval from crawled content for relevant context injection.
-- **Groq API Integration:** Uses `llama3-70b-8192` for fast and intelligent responses.
+- **Groq API Integration:** Uses `llama-3.3-70b-versatile` for fast and intelligent responses.
 - **Embedded Chat UI:** A modern, mobile-responsive frontend built with Vanilla HTML/CSS/JS.
 
 ## 📁 Project Structure

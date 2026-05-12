@@ -21,7 +21,7 @@ Backend:
 - Endpoint: /chat.php
 - Endpoint: /crawl.php (optional crawler trigger)
 AI:
-- Groq API (llama3-70b-8192)
+- Groq API (llama-3.3-70b-versatile)
 - Uses system prompt + retrieved context
 Knowledge system:
 - Crawl website pages

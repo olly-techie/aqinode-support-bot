@@ -50,7 +50,7 @@ CONTEXT:
 " . ($context ?: "No relevant context found.");
 
 $data = [
-    'model' => 'deepseek-r1-distill-llama-70b',
+    'model' => 'llama-3.3-70b-versatile',
     'messages' => [
         ['role' => 'system', 'content' => $systemPrompt],
         ['role' => 'user', 'content' => $userMessage]

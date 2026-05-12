@@ -20,10 +20,12 @@ function get_relevant_context($query, $knowledgeFile = 'knowledge.json') {
         $score = 0;
         $content = strtolower($page['content']);
         
-        // Boost for common identity questions
-        if (strpos($content, 'aqinode') !== false) {
-            if (preg_match('/(who are you|what is aqinode)/i', $query)) {
-                $score += 5;
+        // High boost for identity keywords in short queries
+        if (strlen($query) < 20) {
+            if (preg_match('/(who|what|about|aqinode|start)/i', $query)) {
+                if (strpos($page['url'], 'index') !== false || strpos($page['url'], 'about') !== false || strpos($page['url'], 'faq') !== false) {
+                    $score += 10;
+                }
             }
         }
 

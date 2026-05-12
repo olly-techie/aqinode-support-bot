@@ -96,7 +96,17 @@ class Crawler {
     }
 }
 
-// Usage: php crawl.php
+// Usage: php crawl.php or browse to crawl.php?token=YOUR_SECRET_TOKEN
+
+// Simple security check for web access
+if (php_sapi_name() !== 'cli') {
+    $token = $_GET['token'] ?? '';
+    $secret = getenv('CRAWL_TOKEN') ?: 'change-this-to-a-secure-key'; // Use env var if available
+    if ($token !== $secret) {
+        die('Unauthorized');
+    }
+}
+
 $crawler = new Crawler('https://aqinode.click');
 $crawler->crawl();
 

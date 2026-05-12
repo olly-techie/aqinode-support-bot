@@ -2,5 +2,7 @@
 backend/.env
 knowledge.json
 backend/knowledge.json
+ratelimit_*.txt
+backend/ratelimit_*.txt
 node_modules/
 .DS_Store

@@ -1,13 +1,54 @@
 <?php
 
 header('Content-Type: application/json');
-header('Access-Control-Allow-Origin: *');
+
+// --- SECURITY HARDENING ---
+// 1. Restrict CORS (Update this to your actual frontend domain)
+$allowedOrigins = [
+    'https://aqinode-support-bot.onrender.com',
+    'https://aqinode.click',
+    'http://localhost:8000', // For local testing
+    'http://127.0.0.1:8000'
+];
+$origin = $_SERVER['HTTP_ORIGIN'] ?? '';
+if (in_array($origin, $allowedOrigins)) {
+    header("Access-Control-Allow-Origin: $origin");
+}
+
 header('Access-Control-Allow-Methods: POST, OPTIONS');
 header('Access-Control-Allow-Headers: Content-Type');
+header('X-Content-Type-Options: nosniff');
+header('X-Frame-Options: DENY');
+header('Content-Security-Policy: default-src \'none\';'); // Minimal backend CSP
 
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     exit;
 }
+
+// 2. Basic Rate Limiting (File-based)
+$ip = $_SERVER['REMOTE_ADDR'] ?? 'unknown';
+$rateLimitFile = __DIR__ . '/ratelimit_' . md5($ip) . '.txt';
+$now = time();
+$limit = 10; // 10 requests
+$window = 60; // per 60 seconds
+
+if (file_exists($rateLimitFile)) {
+    $data = json_decode(file_get_contents($rateLimitFile), true);
+    if ($now - $data['start'] < $window) {
+        if ($data['count'] >= $limit) {
+            http_response_code(429);
+            echo json_encode(['error' => 'Too many requests. Please wait a minute.']);
+            exit;
+        }
+        $data['count']++;
+    } else {
+        $data = ['start' => $now, 'count' => 1];
+    }
+} else {
+    $data = ['start' => $now, 'count' => 1];
+}
+file_put_contents($rateLimitFile, json_encode($data));
+// --- END SECURITY HARDENING ---
 
 require_once 'knowledge.php';
 

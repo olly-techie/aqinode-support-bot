@@ -7,6 +7,7 @@ header('Content-Type: application/json');
 $allowedOrigins = [
     'https://aqinode-support-bot.onrender.com',
     'https://aqinode.click',
+    'https://www.aqinode.click',
     'http://localhost:8000',
     'http://127.0.0.1:8000',
     'http://localhost:5500',

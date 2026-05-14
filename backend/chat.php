@@ -350,7 +350,7 @@ $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 curl_close($ch);
 
 if ($httpCode !== 200) {
-    echo json_encode(['error' => 'Groq API Error', 'details' => json_decode($response)]);
+    echo json_encode(['error' => 'Error', 'details' => json_decode($response)]);
     exit;
 }
 

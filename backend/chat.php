@@ -327,7 +327,7 @@ Avoid:
 " . ($context ?: "No specific page context found. Revert to Base Identity for responses.");
 
 $data = [
-    'model' => 'openai/gpt-oss-120b',
+    'model' => 'llama-3.3-70b-versatile',
     'messages' => [
         ['role' => 'system', 'content' => $systemPrompt],
         ['role' => 'user', 'content' => $userMessage]
